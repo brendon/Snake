@@ -11,6 +11,20 @@
 <script>
   import SnakeBody from './SnakeBody.vue'
 
+  const DIRECTION_OPPOSITES = {
+    left: 'right',
+    right: 'left',
+    up: 'down',
+    down: 'up'
+  }
+
+  const DIRECTION_KEY_MAP = {
+    ArrowLeft: 'left',
+    ArrowRight: 'right',
+    ArrowUp: 'up',
+    ArrowDown: 'down'
+  }
+
   export default {
     components: {
       SnakeBody
@@ -22,7 +36,7 @@
         top: 100,
         left: 100,
         direction: 'right',
-        intendedDirection: 'right',
+        directionBuffer: [],
         speed: 10,
         lastAnimateTimestamp: 0,
         tail: [],
@@ -52,7 +66,9 @@
         const elapsedTime = (timestamp - this.lastAnimateTimestamp) / 1000
 
         if (elapsedTime >= (1 / this.speed)) {
-          this.direction = this.intendedDirection
+          if (this.directionBuffer.length > 0) {
+            this.direction = this.directionBuffer.shift()
+          }
 
           this.drawTail()
           this.moveHead()
@@ -66,19 +82,11 @@
         }
       },
       setDirection(event) {
-        switch (event.key) {
-          case 'ArrowLeft':
-            if (this.direction !== 'right') { this.intendedDirection = 'left' }
-            break
-          case 'ArrowRight':
-            if (this.direction !== 'left') { this.intendedDirection = 'right' }
-            break
-          case 'ArrowUp':
-            if (this.direction !== 'down') { this.intendedDirection = 'up' }
-            break
-          case 'ArrowDown':
-            if (this.direction !== 'up') { this.intendedDirection = 'down' }
-            break
+        const direction = DIRECTION_KEY_MAP[event.key]
+        const previousDirection = this.directionBuffer.at(-1) || this.direction
+
+        if (direction && previousDirection !== direction && previousDirection !== DIRECTION_OPPOSITES[direction]) {
+          this.directionBuffer.push(direction)
         }
       },
       moveHead() {
