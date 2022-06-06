@@ -2,6 +2,13 @@
   <div class="field" :style="fieldStyle">
     <div class="snake" :style="snakeStyle"></div>
     <snake-body v-for="segment in tail" :size="size" :top="segment.top" :left="segment.left"/>
+
+    <div class="controls">
+      <button @click="setDirection('up')" class="arrow up"><i class="fa-solid fa-arrow-up"></i></button>
+      <button @click="setDirection('left')" class="arrow left"><i class="fa-solid fa-arrow-left"></i></button>
+      <button @click="setDirection('right')" class="arrow right"><i class="fa-solid fa-arrow-right"></i></button>
+      <button @click="setDirection('down')" class="arrow down"><i class="fa-solid fa-arrow-down"></i></button>
+    </div>
   </div>
 
   <div class="fail" v-if="status !== 'alive'">
@@ -52,13 +59,13 @@
     },
     mounted() {
       window.addEventListener("resize", this.setFieldDimensions)
-      window.addEventListener("keydown", this.setDirection)
+      window.addEventListener("keydown", this.setDirectionFromKeydown)
 
       this.setFieldDimensions()
       window.requestAnimationFrame(this.loop)
     },
     beforeUnmount() {
-      window.removeEventListener("keydown", this.setDirection)
+      window.removeEventListener("keydown", this.setDirectionFromKeydown)
       window.removeEventListener("resize", this.setFieldDimensions)
     },
     computed: {
@@ -99,11 +106,13 @@
         }
       },
       setFieldDimensions() {
-        this.field.width = Math.floor((document.body.clientWidth - (this.size * 2)) / this.size) * this.size
-        this.field.height = Math.floor((document.body.clientHeight - (this.size * 2)) / this.size) * this.size
+        this.field.width = Math.floor((window.innerWidth - (this.size * 2)) / this.size) * this.size
+        this.field.height = Math.floor((window.innerHeight - (this.size * 2)) / this.size) * this.size
       },
-      setDirection(event) {
-        const direction = DIRECTION_KEY_MAP[event.key]
+      setDirectionFromKeydown(event) {
+        this.setDirection(DIRECTION_KEY_MAP[event.key])
+      },
+      setDirection(direction) {
         const previousDirection = this.directionBuffer.at(-1) || this.direction
 
         if (direction && previousDirection !== direction && previousDirection !== DIRECTION_OPPOSITES[direction]) {
@@ -154,7 +163,7 @@
   }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
   .field {
     background-color: white;
     overflow: hidden;
@@ -172,30 +181,73 @@
     transition-timing-function: linear;
   }
 
+  .controls {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+
+    .arrow {
+      all: unset;
+      cursor: pointer;
+      background-color: rgba(grey, 0.5);
+      color: white;
+      padding: 1rem 2rem;
+      font-size: 2rem;
+      display: inline-block;
+
+      &:active {
+        background-color: grey;
+      }
+
+      &.up {
+        grid-column: 2;
+        grid-row: 1;
+      }
+
+      &.left {
+        grid-column: 1;
+        grid-row: 2;
+      }
+
+      &.down {
+        grid-column: 2;
+        grid-row: 2;
+      }
+
+      &.right {
+        grid-column: 3;
+        grid-row: 2;
+      }
+    }
+  }
+
   .fail {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
-  }
 
-  .fail .message {
-    color: red;
-    font-size: 5vw;
-    text-transform: uppercase;
-  }
+    .message {
+      color: red;
+      font-size: 5vw;
+      text-transform: uppercase;
+    }
 
-  .fail .button {
-    all: unset;
-    cursor: pointer;
-    background-color: greenyellow;
-    color: black;
-    padding: 2rem;
-  }
+    .button {
+      all: unset;
+      cursor: pointer;
+      background-color: greenyellow;
+      color: black;
+      padding: 2rem;
 
-  .fail .button:hover {
-    background-color: blue;
-    color: white;
+      &:hover {
+        background-color: blue;
+        color: white;
+      }
+    }
   }
 </style>
