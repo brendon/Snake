@@ -51,14 +51,15 @@
       }
     },
     mounted() {
-      this.setFieldDimensions()
       window.addEventListener("resize", this.setFieldDimensions)
-
       window.addEventListener("keydown", this.setDirection)
+
+      this.setFieldDimensions()
       window.requestAnimationFrame(this.loop)
     },
     beforeUnmount() {
       window.removeEventListener("keydown", this.setDirection)
+      window.removeEventListener("resize", this.setFieldDimensions)
     },
     computed: {
       fieldStyle() {
@@ -133,16 +134,20 @@
         }
       },
       checkForCollision() {
-        const collided = this.tail.some(({top, left}) => {
+        const collidedWithWall = this.left < 0 || this.left >= this.field.width ||
+          this.top < 0 || this.top >= this.field.height
+
+        const collidedWithTail = this.tail.some(({top, left}) => {
           return this.top === top && this.left === left
         })
 
-        if (collided) {
+        if (collidedWithWall || collidedWithTail) {
           this.status = 'dead'
         }
       },
       restart() {
         Object.assign(this.$data, this.$options.data.apply(this))
+        this.setFieldDimensions()
         window.requestAnimationFrame(this.loop)
       }
     }
