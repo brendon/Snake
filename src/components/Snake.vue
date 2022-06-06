@@ -51,8 +51,10 @@
       }
     },
     mounted() {
-      window.addEventListener("keydown", this.setDirection)
       this.setFieldDimensions()
+      window.addEventListener("resize", this.setFieldDimensions)
+
+      window.addEventListener("keydown", this.setDirection)
       window.requestAnimationFrame(this.loop)
     },
     beforeUnmount() {
