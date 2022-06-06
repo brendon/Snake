@@ -1,6 +1,9 @@
 <template>
-  <div class="snake" :style="snakeStyle"></div>
-  <snake-body v-for="segment in tail" :size="size" :top="segment.top" :left="segment.left"/>
+  <div class="field" :style="fieldStyle">
+    <div class="snake" :style="snakeStyle"></div>
+    <snake-body v-for="segment in tail" :size="size" :top="segment.top" :left="segment.left"/>
+  </div>
+
   <div class="fail" v-if="status !== 'alive'">
     <h1 class="message">You Have Failed!</h1>
 
@@ -40,17 +43,28 @@
         speed: 10,
         lastAnimateTimestamp: 0,
         tail: [],
-        status: 'alive'
+        status: 'alive',
+        field: {
+          width: 0,
+          height: 0
+        }
       }
     },
     mounted() {
       window.addEventListener("keydown", this.setDirection)
+      this.setFieldDimensions()
       window.requestAnimationFrame(this.loop)
     },
     beforeUnmount() {
       window.removeEventListener("keydown", this.setDirection)
     },
     computed: {
+      fieldStyle() {
+        return {
+          width: `${this.field.width}px`,
+          height: `${this.field.height}px`,
+        }
+      },
       snakeStyle() {
         return {
           width: `${this.size}px`,
@@ -80,6 +94,10 @@
         if (this.status === 'alive') {
           window.requestAnimationFrame(this.loop)
         }
+      },
+      setFieldDimensions() {
+        this.field.width = Math.floor((document.body.clientWidth - (this.size * 2)) / this.size) * this.size
+        this.field.height = Math.floor((document.body.clientHeight - (this.size * 2)) / this.size) * this.size
       },
       setDirection(event) {
         const direction = DIRECTION_KEY_MAP[event.key]
@@ -130,6 +148,16 @@
 </script>
 
 <style scoped>
+  .field {
+    background-color: white;
+    overflow: hidden;
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
   .snake {
     background-color: green;
     position: absolute;

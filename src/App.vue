@@ -11,5 +11,6 @@
 
   #app {
     height: 100%;
+    background-color: brown;
   }
 </style>
