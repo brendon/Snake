@@ -189,6 +189,10 @@
     grid-template-columns: 1fr 1fr 1fr;
     grid-template-rows: 1fr 1fr;
 
+    @media (hover: hover) {
+      display: none;
+    }
+
     .arrow {
       all: unset;
       cursor: pointer;
@@ -197,6 +201,7 @@
       padding: 1rem 2rem;
       font-size: 2rem;
       display: inline-block;
+      touch-action: manipulation;
 
       &:active {
         background-color: grey;
