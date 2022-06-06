@@ -1,5 +1,5 @@
 <template>
-  <div class="field" :style="fieldStyle">
+  <field :size="size" ref="field">
     <div class="snake" :style="snakeStyle"></div>
     <snake-body v-for="segment in tail" :size="size" :top="segment.top" :left="segment.left"/>
 
@@ -9,7 +9,7 @@
       <button @click="setDirection('right')" class="arrow right"><i class="fa-solid fa-arrow-right"></i></button>
       <button @click="setDirection('down')" class="arrow down"><i class="fa-solid fa-arrow-down"></i></button>
     </div>
-  </div>
+  </field>
 
   <div class="fail" v-if="status !== 'alive'">
     <h1 class="message">You Have Failed!</h1>
@@ -19,6 +19,7 @@
 </template>
 
 <script>
+  import Field from './Field.vue'
   import SnakeBody from './SnakeBody.vue'
 
   const DIRECTION_OPPOSITES = {
@@ -37,6 +38,7 @@
 
   export default {
     components: {
+      Field,
       SnakeBody
     },
     data() {
@@ -50,31 +52,18 @@
         speed: 10,
         lastAnimateTimestamp: 0,
         tail: [],
-        status: 'alive',
-        field: {
-          width: 0,
-          height: 0
-        }
+        status: 'alive'
       }
     },
     mounted() {
-      window.addEventListener("resize", this.setFieldDimensions)
       window.addEventListener("keydown", this.setDirectionFromKeydown)
 
-      this.setFieldDimensions()
       window.requestAnimationFrame(this.loop)
     },
     beforeUnmount() {
       window.removeEventListener("keydown", this.setDirectionFromKeydown)
-      window.removeEventListener("resize", this.setFieldDimensions)
     },
     computed: {
-      fieldStyle() {
-        return {
-          width: `${this.field.width}px`,
-          height: `${this.field.height}px`,
-        }
-      },
       snakeStyle() {
         return {
           width: `${this.size}px`,
@@ -90,6 +79,8 @@
         const elapsedTime = (timestamp - this.lastAnimateTimestamp) / 1000
 
         if (elapsedTime >= (1 / this.speed)) {
+          this.lastAnimateTimestamp = timestamp
+
           if (this.directionBuffer.length > 0) {
             this.direction = this.directionBuffer.shift()
           }
@@ -97,17 +88,11 @@
           this.drawTail()
           this.moveHead()
           this.checkForCollision()
-
-          this.lastAnimateTimestamp = timestamp
         }
 
         if (this.status === 'alive') {
           window.requestAnimationFrame(this.loop)
         }
-      },
-      setFieldDimensions() {
-        this.field.width = Math.floor((window.innerWidth - (this.size * 2)) / this.size) * this.size
-        this.field.height = Math.floor((window.innerHeight - (this.size * 2)) / this.size) * this.size
       },
       setDirectionFromKeydown(event) {
         this.setDirection(DIRECTION_KEY_MAP[event.key])
@@ -143,8 +128,8 @@
         }
       },
       checkForCollision() {
-        const collidedWithWall = this.left < 0 || this.left >= this.field.width ||
-          this.top < 0 || this.top >= this.field.height
+        const collidedWithWall = this.left < 0 || this.left >= this.$refs.field.width ||
+          this.top < 0 || this.top >= this.$refs.field.height
 
         const collidedWithTail = this.tail.some(({top, left}) => {
           return this.top === top && this.left === left
@@ -156,7 +141,6 @@
       },
       restart() {
         Object.assign(this.$data, this.$options.data.apply(this))
-        this.setFieldDimensions()
         window.requestAnimationFrame(this.loop)
       }
     }
@@ -164,16 +148,6 @@
 </script>
 
 <style scoped lang="scss">
-  .field {
-    background-color: white;
-    overflow: hidden;
-
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-  }
-
   .snake {
     background-color: green;
     position: absolute;
