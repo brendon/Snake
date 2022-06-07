@@ -10,7 +10,9 @@
       <button @click="setDirection('down')" class="arrow down"><i class="fa-solid fa-arrow-down"></i></button>
     </div>
 
-    <apple v-if="apple" v-bind="apple" :size="size"/>
+    <div v-if="apple">
+      <apple v-bind="apple" :size="size"/>
+    </div>
   </field>
 
   <div class="fail" v-if="status !== 'alive'">
@@ -87,6 +89,7 @@
           this.lastAnimateTimestamp = timestamp
 
           if (!this.apple) { this.addApple() }
+          this.eatApple()
 
           if (this.directionBuffer.length > 0) {
             this.direction = this.directionBuffer.shift()
@@ -102,9 +105,21 @@
         }
       },
       addApple() {
-        this.apple = {
-          left: Math.floor(Math.floor(Math.random() * this.$refs.field.width) / this.size) * this.size,
-          top: Math.floor(Math.floor(Math.random() * this.$refs.field.height) / this.size) * this.size
+        do {
+          this.apple = {
+            left: Math.floor(Math.floor(Math.random() * this.$refs.field.width) / this.size) * this.size,
+            top: Math.floor(Math.floor(Math.random() * this.$refs.field.height) / this.size) * this.size
+          }
+        } while (this.appleIsColliding())
+      },
+      appleIsColliding() {
+        return [{left: this.left, top: this.top}, ...this.tail].some(({left, top}) => {
+          return this.apple.top === top && this.apple.left === left
+        })
+      },
+      eatApple() {
+        if (this.left === this.apple.left && this.top === this.apple.top) {
+          this.apple = null
         }
       },
       setDirectionFromKeydown(event) {
