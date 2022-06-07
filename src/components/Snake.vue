@@ -9,6 +9,8 @@
       <button @click="setDirection('right')" class="arrow right"><i class="fa-solid fa-arrow-right"></i></button>
       <button @click="setDirection('down')" class="arrow down"><i class="fa-solid fa-arrow-down"></i></button>
     </div>
+
+    <apple v-if="apple" v-bind="apple" :size="size"/>
   </field>
 
   <div class="fail" v-if="status !== 'alive'">
@@ -21,6 +23,7 @@
 <script>
   import Field from './Field.vue'
   import SnakeBody from './SnakeBody.vue'
+  import Apple from './Apple.vue'
 
   const DIRECTION_OPPOSITES = {
     left: 'right',
@@ -39,12 +42,13 @@
   export default {
     components: {
       Field,
-      SnakeBody
+      SnakeBody,
+      Apple
     },
     data() {
       return {
         size: 20,
-        length: 20,
+        length: 5,
         top: 100,
         left: 100,
         direction: 'right',
@@ -52,7 +56,8 @@
         speed: 10,
         lastAnimateTimestamp: 0,
         tail: [],
-        status: 'alive'
+        status: 'alive',
+        apple: null
       }
     },
     mounted() {
@@ -81,6 +86,8 @@
         if (elapsedTime >= (1 / this.speed)) {
           this.lastAnimateTimestamp = timestamp
 
+          if (!this.apple) { this.addApple() }
+
           if (this.directionBuffer.length > 0) {
             this.direction = this.directionBuffer.shift()
           }
@@ -92,6 +99,12 @@
 
         if (this.status === 'alive') {
           window.requestAnimationFrame(this.loop)
+        }
+      },
+      addApple() {
+        this.apple = {
+          left: Math.floor(Math.floor(Math.random() * this.$refs.field.width) / this.size) * this.size,
+          top: Math.floor(Math.floor(Math.random() * this.$refs.field.height) / this.size) * this.size
         }
       },
       setDirectionFromKeydown(event) {
