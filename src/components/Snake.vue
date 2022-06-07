@@ -120,6 +120,7 @@
       eatApple() {
         if (this.left === this.apple.left && this.top === this.apple.top) {
           this.apple = null
+          this.length += 2
         }
       },
       setDirectionFromKeydown(event) {
