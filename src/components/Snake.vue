@@ -17,8 +17,9 @@
 
   <div class="fail" v-if="status !== 'alive'">
     <h1 class="message">You Have Failed!</h1>
+    <p class="score">Score: {{ score }}</p>
 
-    <div><button @click="restart" class="button">Restart</button></div>
+    <p><button @click="restart" class="button">Restart</button></p>
   </div>
 </template>
 
@@ -58,6 +59,7 @@
         speed: 10,
         lastAnimateTimestamp: 0,
         tail: [],
+        score: 0,
         status: 'alive',
         apple: null
       }
@@ -120,6 +122,7 @@
       eatApple() {
         if (this.left === this.apple.left && this.top === this.apple.top) {
           this.apple = null
+          this.score += 10
           this.length += 2
         }
       },
@@ -243,6 +246,12 @@
       color: red;
       font-size: 5vw;
       text-transform: uppercase;
+      margin-bottom: 0.5vw;
+    }
+
+    .score {
+      font-size: 3vw;
+      margin-bottom: 1vw;
     }
 
     .button {
