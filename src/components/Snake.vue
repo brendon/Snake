@@ -56,7 +56,8 @@
         left: 100,
         direction: 'right',
         directionBuffer: [],
-        speed: 10,
+        startSpeed: 10,
+        levelThreshold: 100,
         lastAnimateTimestamp: 0,
         tail: [],
         score: 0,
@@ -81,6 +82,9 @@
           left: `${this.left}px`,
           transitionDuration: `${1 / this.speed}s`
         }
+      },
+      speed() {
+        return this.startSpeed + Math.floor(this.score / this.levelThreshold) * 2
       }
     },
     methods: {
