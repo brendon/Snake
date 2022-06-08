@@ -84,7 +84,7 @@
         }
       },
       speed() {
-        return this.startSpeed + Math.floor(this.score / this.levelThreshold) * 2
+        return this.startSpeed + Math.floor(this.score / this.levelThreshold)
       }
     },
     methods: {
